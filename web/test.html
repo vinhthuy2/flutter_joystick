@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>SSE Example</title>
+</head>
+
+<body>
+    <input type="text" id="sessionId" placeholder="Enter session ID" value>
+    <button id="connectButton">Connect</button>
+    <p id="event-list"></p>
+
+    <script>
+        const button = document.getElementById('connectButton');
+        const list = [];
+        button.addEventListener('click', () => {
+            // Close any existing EventSource connections
+            list.forEach(eventSource => {
+                eventSource.close();
+            });
+
+            const sessionId = document.getElementById('sessionId').value;
+            if (sessionId) {
+                const eventSource = new EventSource(`http://localhost:5298/chatStream?sessionId=${sessionId}`);
+                eventSource.onopen = () => {
+                    console.log('EventSource connection opened');
+                };
+
+                eventSource.onmessage = (event) => {
+                    if (event.data === '[done]') {
+                        eventSource.close();
+                        return;
+                    }
+                    document.getElementById('event-list').append(event.data);
+                };
+
+                eventSource.onerror = (error) => {
+                    console.error('EventSource error:', error);
+                    eventSource.close();
+                };
+
+                list.push(eventSource);
+            } else {
+                alert('Please enter a session ID');
+            }
+        });
+    </script>
+</body>
+
+</html>

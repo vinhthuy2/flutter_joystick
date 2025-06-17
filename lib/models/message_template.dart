@@ -5,7 +5,13 @@ class MessageTemplate {
   final DateTime createdAt;
   final DateTime? lastUsed;
 
-  MessageTemplate({required this.id, required this.text, required this.category, required this.createdAt, this.lastUsed});
+  MessageTemplate({
+    required this.id,
+    required this.text,
+    required this.category,
+    required this.createdAt,
+    this.lastUsed,
+  });
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -15,11 +21,14 @@ class MessageTemplate {
     'lastUsed': lastUsed?.toIso8601String(),
   };
 
-  factory MessageTemplate.fromJson(Map<String, dynamic> json) => MessageTemplate(
-    id: json['id'] as String,
-    text: json['text'] as String,
-    category: json['category'] as String,
-    createdAt: DateTime.parse(json['createdAt'] as String),
-    lastUsed: json['lastUsed'] != null ? DateTime.parse(json['lastUsed'] as String) : null,
-  );
+  factory MessageTemplate.fromJson(Map<String, dynamic> json) =>
+      MessageTemplate(
+        id: json['id'] as String,
+        text: json['text'] as String,
+        category: json['category'] as String,
+        createdAt: DateTime.parse(json['createdAt'] as String),
+        lastUsed: json['lastUsed'] != null
+            ? DateTime.parse(json['lastUsed'] as String)
+            : null,
+      );
 }

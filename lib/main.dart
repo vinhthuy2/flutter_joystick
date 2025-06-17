@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_joystick/chat_interface.dart';
 import 'package:flutter_joystick/joystick_page.dart';
 import 'package:flutter_joystick/piechart_page.dart';
 import 'package:flutter_joystick/wheel_page.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+Future main() async {
+  await dotenv.load(fileName: ".env");
+
   runApp(const MyApp());
 }
 
@@ -18,7 +21,9 @@ class MyApp extends StatelessWidget {
       create: (context) => MyAppState(),
       child: MaterialApp(
         title: 'Namer App',
-        theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange)),
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+        ),
         home: MyHomePage(),
       ),
     );
@@ -61,13 +66,22 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     return Scaffold(
-      body: Container(color: Theme.of(context).colorScheme.primaryContainer, child: page),
+      body: Container(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        child: page,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.gamepad), label: 'Joystick'),
-          BottomNavigationBarItem(icon: Icon(Icons.pie_chart), label: 'Pie Chart'),
-          BottomNavigationBarItem(icon: Icon(Icons.directions_car), label: 'Wheel'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.pie_chart),
+            label: 'Pie Chart',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.directions_car),
+            label: 'Wheel',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
         ],
         currentIndex: selectedIndex,

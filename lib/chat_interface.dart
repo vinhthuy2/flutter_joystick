@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_joystick/models/message.dart';
+import 'package:flutter_joystick/services/chat_service.dart';
 import 'package:flutter_joystick/wheel_page.dart';
+import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 import '../models/message_template.dart';
-// import 'message_wheel.dart';
 
 class ChatInterface extends StatefulWidget {
   const ChatInterface({super.key});
@@ -22,8 +25,15 @@ class _ChatInterfaceState extends State<ChatInterface> {
     WheelOption('✈️', 'Travel', Colors.indigo),
     WheelOption('📱', 'Tech', Colors.pink),
   ];
+
+  final List<Message> messages = [];
+
   final TextEditingController _messageController = TextEditingController();
   bool _showWheel = false;
+  final responseMessageBuff = StringBuffer();
+  String newResponseId = '';
+  String responseMs = '>';
+  String? sessionId;
 
   @override
   void dispose() {
@@ -38,10 +48,47 @@ class _ChatInterfaceState extends State<ChatInterface> {
     });
   }
 
-  void _handleSendMessage() {
-    if (_messageController.text.trim().isEmpty) return;
+  Future _handleSendMessage() async {
+    var newMessage = _messageController.text.trim();
+    print(newMessage);
+    if (newMessage.isEmpty) return;
 
-    // TODO: Implement message sending
+    var message = Message(
+      id: const Uuid().v4(),
+      content: newMessage,
+      sender: 'User',
+      sessionId: sessionId,
+    );
+
+    sessionId = await sendDeferredMessage(message);
+
+    newResponseId = const Uuid().v4();
+
+    var deferredResponse = Message(
+      id: newResponseId,
+      content: '...',
+      sender: 'Assistant',
+      sessionId: sessionId,
+    );
+
+    setState(() {
+      messages.add(message);
+      messages.add(deferredResponse);
+    });
+
+    // start listening for responses
+    if (sessionId != null) {
+      responseMessageBuff.clear();
+      responseMs = '';
+      receiveDeferredMessages(sessionId!).listen((response) {
+        responseMessageBuff.write(response.replaceAll('\n', ''));
+        setState(() {
+          responseMs = responseMessageBuff.toString();
+          deferredResponse.content = responseMs;
+        });
+      }, cancelOnError: true);
+    }
+
     _messageController.clear();
   }
 
@@ -54,23 +101,72 @@ class _ChatInterfaceState extends State<ChatInterface> {
           Column(
             children: [
               Expanded(
-                child: ListView(
-                  // TODO: Implement message list
-                  children: const [],
+                child: ListView.builder(
+                  itemCount: messages.length,
+                  itemBuilder: (context, idx) {
+                    final message = messages[idx];
+                    return Row(
+                      mainAxisAlignment: message.sender != 'User'
+                          ? MainAxisAlignment.start
+                          : MainAxisAlignment.end,
+                      children: [
+                        SizedBox(
+                          width: 300,
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(
+                              vertical: 4,
+                              horizontal: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: messages[idx].sender != 'User'
+                                  ? Colors.blue[100]
+                                  : Colors.green[100],
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: ListTile(
+                              title: Text(
+                                message.id == newResponseId
+                                    ? responseMs
+                                    : message.content,
+                                textAlign: message.sender != 'User'
+                                    ? TextAlign.start
+                                    : TextAlign.end,
+                              ),
+                              subtitle: Text(
+                                DateFormat.yMMMd().format(DateTime.now()),
+                                textAlign: message.sender == 'User A'
+                                    ? TextAlign.start
+                                    : TextAlign.end,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
               Container(
                 padding: const EdgeInsets.all(8.0),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4, offset: const Offset(0, -2))],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(20),
+                      blurRadius: 4,
+                      offset: const Offset(0, -2),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
                     Expanded(
                       child: TextField(
                         controller: _messageController,
-                        decoration: const InputDecoration(hintText: 'Type a message...', border: OutlineInputBorder()),
+                        decoration: const InputDecoration(
+                          hintText: 'Type a message...',
+                          border: OutlineInputBorder(),
+                        ),
                         maxLines: null,
                       ),
                     ),
@@ -81,10 +177,16 @@ class _ChatInterfaceState extends State<ChatInterface> {
                           _showWheel = true;
                         });
                       },
+                      onTap: () {
+                        _handleSendMessage();
+                      },
                       child: Container(
                         width: 48,
                         height: 48,
-                        decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(24)),
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(24),
+                        ),
                         child: const Icon(Icons.send, color: Colors.white),
                       ),
                     ),
@@ -94,19 +196,6 @@ class _ChatInterfaceState extends State<ChatInterface> {
             ],
           ),
           if (_showWheel)
-            // Consumer<TemplateProvider>(
-            //   builder: (context, provider, child) {
-            //     return MessageWheel(
-            //       templates: provider.templates,
-            //       onTemplateSelected: _handleTemplateSelected,
-            //       onDismiss: () {
-            //         setState(() {
-            //           _showWheel = false;
-            //         });
-            //       },
-            //     );
-            //   },
-            // ),
             Center(
               child: SizedBox(
                 height: 320,
@@ -115,7 +204,10 @@ class _ChatInterfaceState extends State<ChatInterface> {
                   options: options,
                   selectedIndex: 0,
                   onOptionSelected: (index, action) {
-                    print(index);
+                    _messageController.text = options[index].label;
+                    setState(() {
+                      _showWheel = false;
+                    });
                   },
                   onDismiss: () {
                     setState(() {
