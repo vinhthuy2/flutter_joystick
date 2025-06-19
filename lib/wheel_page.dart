@@ -9,14 +9,14 @@ class WheelSelect extends StatefulWidget {
 
 class _WheelSelectState extends State<WheelSelect> {
   final List<WheelOption> options = [
-    WheelOption('🎮', 'Gaming', Colors.blue),
-    WheelOption('📚', 'Reading', Colors.green),
-    WheelOption('🎵', 'Music', Colors.orange),
-    WheelOption('🏃', 'Sports', Colors.red),
-    WheelOption('🎨', 'Art', Colors.purple),
-    WheelOption('🍳', 'Cooking', Colors.teal),
-    WheelOption('✈️', 'Travel', Colors.indigo),
-    WheelOption('📱', 'Tech', Colors.pink),
+    WheelOption(Icons.gamepad, 'Gaming', Colors.blue),
+    WheelOption(Icons.book, 'Reading', Colors.green),
+    WheelOption(Icons.music_note, 'Music', Colors.orange),
+    WheelOption(Icons.sports, 'Sports', Colors.red),
+    WheelOption(Icons.art_track, 'Art', Colors.purple),
+    WheelOption(Icons.food_bank, 'Cooking', Colors.teal),
+    WheelOption(Icons.travel_explore, 'Travel', Colors.indigo),
+    WheelOption(Icons.device_hub, 'Tech', Colors.pink),
   ];
 
   int selectedIndex = 0;
@@ -29,7 +29,10 @@ class _WheelSelectState extends State<WheelSelect> {
       body: Column(
         children: [
           SizedBox(height: 20),
-          Text('Select your favorite activity', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+          Text(
+            'Select your favorite activity',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+          ),
           SizedBox(height: 20),
           Expanded(
             child: Center(
@@ -66,18 +69,24 @@ class _WheelSelectState extends State<WheelSelect> {
       decoration: BoxDecoration(
         color: options[selectedIndex].color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: options[selectedIndex].color.withOpacity(0.3)),
+        border: Border.all(
+          color: options[selectedIndex].color.withOpacity(0.3),
+        ),
       ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(options[selectedIndex].icon, style: TextStyle(fontSize: 32)),
+              Icon(options[selectedIndex].icon, size: 24),
               SizedBox(width: 12),
               Text(
                 options[selectedIndex].label,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: options[selectedIndex].color),
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: options[selectedIndex].color,
+                ),
               ),
             ],
           ),
@@ -85,7 +94,11 @@ class _WheelSelectState extends State<WheelSelect> {
             SizedBox(height: 8),
             Text(
               'Selected by: $selectedAction',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600], fontStyle: FontStyle.italic),
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+                fontStyle: FontStyle.italic,
+              ),
             ),
           ],
         ],
@@ -95,7 +108,7 @@ class _WheelSelectState extends State<WheelSelect> {
 }
 
 class WheelOption {
-  final String icon;
+  final IconData icon;
   final String label;
   final Color color;
 
@@ -108,14 +121,20 @@ class WheelSelector extends StatefulWidget {
   final Function(int, String) onOptionSelected;
   final VoidCallback onDismiss;
 
-  const WheelSelector({Key? key, required this.options, required this.selectedIndex, required this.onOptionSelected, required this.onDismiss})
-    : super(key: key);
+  const WheelSelector({
+    Key? key,
+    required this.options,
+    required this.selectedIndex,
+    required this.onOptionSelected,
+    required this.onDismiss,
+  }) : super(key: key);
 
   @override
   _WheelSelectorState createState() => _WheelSelectorState();
 }
 
-class _WheelSelectorState extends State<WheelSelector> with TickerProviderStateMixin {
+class _WheelSelectorState extends State<WheelSelector>
+    with TickerProviderStateMixin {
   late AnimationController _scaleController;
   late AnimationController _pulseController;
   late Animation<double> _scaleAnimation;
@@ -128,10 +147,20 @@ class _WheelSelectorState extends State<WheelSelector> with TickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _scaleController = AnimationController(duration: Duration(milliseconds: 150), vsync: this);
-    _pulseController = AnimationController(duration: Duration(milliseconds: 800), vsync: this);
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut));
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
+    _scaleController = AnimationController(
+      duration: Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _pulseController = AnimationController(
+      duration: Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut),
+    );
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
 
     _pulseController.repeat(reverse: true);
   }
@@ -153,7 +182,9 @@ class _WheelSelectorState extends State<WheelSelector> with TickerProviderStateM
 
         // Only allow selection if tap is on a slice (not center)
         if (distance > 50) {
-          final selectedIndex = _getSliceIndexFromPosition(details.localPosition);
+          final selectedIndex = _getSliceIndexFromPosition(
+            details.localPosition,
+          );
           if (selectedIndex != -1) {
             _selectOption(selectedIndex, 'tap');
           }
@@ -188,7 +219,9 @@ class _WheelSelectorState extends State<WheelSelector> with TickerProviderStateM
       },
       onPanEnd: (details) {
         if (_isDragging) {
-          final selectedIndex = _getSliceIndexFromPosition(details.localPosition);
+          final selectedIndex = _getSliceIndexFromPosition(
+            details.localPosition,
+          );
           if (selectedIndex != -1) {
             _selectOption(selectedIndex, 'drag');
           }
@@ -320,7 +353,12 @@ class WheelPainter extends CustomPainter {
 
       final path = Path();
       path.moveTo(center.dx, center.dy);
-      path.arcTo(Rect.fromCircle(center: center, radius: radius), startAngle, sliceAngle, false);
+      path.arcTo(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        sliceAngle,
+        false,
+      );
       path.close();
 
       canvas.drawPath(path, paint);
@@ -342,29 +380,13 @@ class WheelPainter extends CustomPainter {
         canvas.drawPath(path, indicatorPaint);
       }
 
-      // Draw icon
-      final iconAngle = startAngle + sliceAngle / 2;
-      final iconRadius = radius * 0.75;
-      final iconOffset = Offset(center.dx + math.cos(iconAngle) * iconRadius, center.dy + math.sin(iconAngle) * iconRadius);
-
-      final iconSize = isSelected ? 28.0 : (isHovered ? 26.0 : 24.0);
-      final iconPainter = TextPainter(
-        text: TextSpan(
-          text: option.icon,
-          style: TextStyle(
-            fontSize: iconSize,
-            shadows: [Shadow(offset: Offset(1, 1), blurRadius: 2, color: Colors.black26)],
-          ),
-        ),
-        textDirection: TextDirection.ltr,
-      );
-
-      iconPainter.layout();
-      iconPainter.paint(canvas, Offset(iconOffset.dx - iconPainter.width / 2, iconOffset.dy - iconPainter.height / 2));
-
       // Draw label
+      final iconAngle = startAngle + sliceAngle / 2;
       final labelRadius = radius * 0.45;
-      final labelOffset = Offset(center.dx + math.cos(iconAngle) * labelRadius, center.dy + math.sin(iconAngle) * labelRadius);
+      final labelOffset = Offset(
+        center.dx + math.cos(iconAngle) * labelRadius,
+        center.dy + math.sin(iconAngle) * labelRadius,
+      );
 
       final labelSize = isSelected ? 14.0 : (isHovered ? 13.0 : 12.0);
       final labelPainter = TextPainter(
@@ -374,14 +396,26 @@ class WheelPainter extends CustomPainter {
             color: Colors.white,
             fontSize: labelSize,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-            shadows: [Shadow(offset: Offset(1, 1), blurRadius: 2, color: Colors.black54)],
+            shadows: [
+              Shadow(
+                offset: Offset(1, 1),
+                blurRadius: 2,
+                color: Colors.black54,
+              ),
+            ],
           ),
         ),
         textDirection: TextDirection.ltr,
       );
 
       labelPainter.layout();
-      labelPainter.paint(canvas, Offset(labelOffset.dx - labelPainter.width / 2, labelOffset.dy - labelPainter.height / 2));
+      labelPainter.paint(
+        canvas,
+        Offset(
+          labelOffset.dx - labelPainter.width / 2,
+          labelOffset.dy - labelPainter.height / 2,
+        ),
+      );
     }
 
     // Draw center circle with pulsing effect
@@ -413,14 +447,25 @@ class WheelPainter extends CustomPainter {
       final instructionPainter = TextPainter(
         text: TextSpan(
           text: 'Drag\nfrom\nhere',
-          style: TextStyle(color: Colors.grey[600], fontSize: 10, fontWeight: FontWeight.w500, height: 1.1),
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 10,
+            fontWeight: FontWeight.w500,
+            height: 1.1,
+          ),
         ),
         textDirection: TextDirection.ltr,
         textAlign: TextAlign.center,
       );
 
       instructionPainter.layout();
-      instructionPainter.paint(canvas, Offset(center.dx - instructionPainter.width / 2, center.dy - instructionPainter.height / 2));
+      instructionPainter.paint(
+        canvas,
+        Offset(
+          center.dx - instructionPainter.width / 2,
+          center.dy - instructionPainter.height / 2,
+        ),
+      );
     }
 
     // Draw drag line

@@ -1,6 +1,7 @@
 class Message {
   String content;
   String? sessionId;
+  String? extraSystemPrompt;
   final String id;
   final String sender;
 
@@ -9,6 +10,7 @@ class Message {
     required this.content,
     required this.sender,
     this.sessionId,
+    this.extraSystemPrompt,
   });
 
   Map<String, dynamic> toJson() => {
@@ -16,6 +18,7 @@ class Message {
     'content': content,
     'sender': sender,
     'sessionId': sessionId,
+    'extraSystemPrompt': extraSystemPrompt,
   };
 
   factory Message.fromJson(Map<String, dynamic> json) => Message(
@@ -23,6 +26,7 @@ class Message {
     content: json['text'] as String,
     sender: json['sender'] as String,
     sessionId: json['sessionId'] as String? ?? '',
+    extraSystemPrompt: json['extraSystemPrompt'] as String? ?? '',
   );
 }
 
@@ -58,4 +62,15 @@ class ChatSession {
     createdAt: DateTime.parse(json['createdAt'] as String),
     updatedAt: DateTime.parse(json['updatedAt'] as String),
   );
+}
+
+class RevisedMessage {
+  final String content;
+
+  RevisedMessage({required this.content});
+
+  Map<String, dynamic> toJson() => {'content': content};
+
+  factory RevisedMessage.fromJson(Map<String, dynamic> json) =>
+      RevisedMessage(content: json['text'] as String);
 }
