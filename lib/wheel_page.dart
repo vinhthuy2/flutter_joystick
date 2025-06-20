@@ -9,14 +9,14 @@ class WheelSelect extends StatefulWidget {
 
 class _WheelSelectState extends State<WheelSelect> {
   final List<WheelOption> options = [
-    WheelOption(Icons.gamepad, 'Gaming', Colors.blue),
-    WheelOption(Icons.book, 'Reading', Colors.green),
-    WheelOption(Icons.music_note, 'Music', Colors.orange),
-    WheelOption(Icons.sports, 'Sports', Colors.red),
-    WheelOption(Icons.art_track, 'Art', Colors.purple),
-    WheelOption(Icons.food_bank, 'Cooking', Colors.teal),
-    WheelOption(Icons.travel_explore, 'Travel', Colors.indigo),
-    WheelOption(Icons.device_hub, 'Tech', Colors.pink),
+    WheelOption('Gaming', Colors.blue),
+    WheelOption('Reading', Colors.green),
+    WheelOption('Music', Colors.orange),
+    WheelOption('Sports', Colors.red),
+    WheelOption('Art', Colors.purple),
+    WheelOption('Cooking', Colors.teal),
+    WheelOption('Travel', Colors.indigo),
+    WheelOption('Tech', Colors.pink),
   ];
 
   int selectedIndex = 0;
@@ -78,7 +78,6 @@ class _WheelSelectState extends State<WheelSelect> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(options[selectedIndex].icon, size: 24),
               SizedBox(width: 12),
               Text(
                 options[selectedIndex].label,
@@ -108,11 +107,10 @@ class _WheelSelectState extends State<WheelSelect> {
 }
 
 class WheelOption {
-  final IconData icon;
   final String label;
   final Color color;
 
-  WheelOption(this.icon, this.label, this.color);
+  WheelOption(this.label, this.color);
 }
 
 class WheelSelector extends StatefulWidget {

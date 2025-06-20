@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_joystick/DifferedText.dart';
 import 'package:flutter_joystick/models/message.dart';
 import 'package:flutter_joystick/services/chat_service.dart';
 import 'package:flutter_joystick/wheel_page.dart';
@@ -16,20 +17,19 @@ class ChatInterface extends StatefulWidget {
 
 class _ChatInterfaceState extends State<ChatInterface> {
   final List<WheelOption> options = [
-    WheelOption(Icons.cancel, 'None', Colors.grey),
-    WheelOption(Icons.face, 'Happy', Colors.green),
-    WheelOption(Icons.face_2, 'Warmed up', Colors.orange),
-    WheelOption(Icons.emoji_emotions, 'Angry', Colors.red),
+    WheelOption('None', Colors.grey),
+    WheelOption('Happy', Colors.green),
+    WheelOption('Unenthusiastic', Colors.orange),
+    WheelOption('Angry', Colors.red),
   ];
 
   final List<Message> messages = [];
 
   final TextEditingController _messageController = TextEditingController();
   final textInputDebouncer = Debouncer<String>(
-    Duration(milliseconds: 500),
+    Duration(milliseconds: 1000),
     initialValue: '',
   );
-  Timer? _debounceMessageChange;
 
   final _listViewScrollController = ScrollController();
 
@@ -55,7 +55,8 @@ class _ChatInterfaceState extends State<ChatInterface> {
 
     textInputDebouncer.values.listen((value) {
       if (_messageController.text == lastInput) return;
-      if (_messageController.text == revisedMessage) return;
+      if (revisedMessage?.contains(_messageController.text) ?? false) return;
+      if (_messageController.text.length < 10) return;
 
       print('input changed');
       onInputChanged();
@@ -101,6 +102,7 @@ class _ChatInterfaceState extends State<ChatInterface> {
         id: Uuid().v4(),
         content: input,
         sender: 'User',
+        sessionId: sessionId,
         extraSystemPrompt: targetSentiment.value,
       ),
     );
@@ -237,7 +239,8 @@ class _ChatInterfaceState extends State<ChatInterface> {
                                 child: GestureDetector(
                                   onTap: () {
                                     setState(() {
-                                      _messageController.text = revisedMessage!;
+                                      _messageController.text = revisedMessage!
+                                          .replaceAll("\"", "");
                                       _showSuggestion = false;
                                     });
                                   },
@@ -260,11 +263,9 @@ class _ChatInterfaceState extends State<ChatInterface> {
                                       children: [
                                         Expanded(
                                           flex: 11,
-                                          child: Text(
-                                            revisedMessage ?? '',
-                                            style: TextStyle(
-                                              color: Colors.green[700],
-                                            ),
+                                          child: DifferedText(
+                                            textA: _messageController.text,
+                                            textB: revisedMessage ?? '',
                                           ),
                                         ),
                                         Spacer(flex: 1),

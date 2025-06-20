@@ -38,7 +38,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var selectedIndex = 0;
+  var selectedIndex = 3;
 
   void callback(x, y) {
     print('callback x => $x and y $y');
